@@ -40,7 +40,7 @@
       <h3 class="nombre-lugar">FINCA LA ANACONDA</h3>
 
       <a
-        href="https://maps.app.goo.gl/2Uw4kKeAJ57QUtYo6"
+        :href="props.locationUrl"
         target="_blank"
         rel="noopener noreferrer"
         class="btn-ubicacion pulse-btn"
@@ -60,8 +60,9 @@ interface Props {
   locationUrl?: string;
 }
 
-withDefaults(defineProps<Props>(), {
-  locationUrl: "https://maps.app.goo.gl/2Uw4kKeAJ57QUtYo6",
+const props = withDefaults(defineProps<Props>(), {
+  locationUrl:
+    "https://www.google.com/maps/place/FINCA+FUNDO+ANACONDA/@4.1217619,-73.453327,17z/data=!3m1!4b1!4m6!3m5!1s0x8e158700450d9e83:0xa1784734da66fe5f!8m2!3d4.1217619!4d-73.453327!16s%2Fg%2F11vj_cd68h!18m1!1e1?entry=ttu&g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D",
 });
 
 const seccionRef = ref<HTMLElement | null>(null);
