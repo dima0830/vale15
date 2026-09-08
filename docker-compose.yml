@@ -10,9 +10,19 @@ services:
       NODE_ENV: production
       HOST: 0.0.0.0
       PORT: 3000
+      # base de datos (contenedor cluster-mysql)
+      # prefijo NUXT_ requerido para sobreescribir runtimeConfig en tiempo de ejecución
+      NUXT_DB_HOST: ${DB_HOST}
+      NUXT_DB_PORT: ${DB_PORT}
+      NUXT_DB_USER: ${DB_USER}
+      NUXT_DB_PASSWORD: ${DB_PASSWORD}
+      NUXT_DB_NAME: ${DB_NAME}
     networks:
       - nginx-proxy
+      - cluster
 
 networks:
   nginx-proxy:
+    external: true
+  cluster:
     external: true
