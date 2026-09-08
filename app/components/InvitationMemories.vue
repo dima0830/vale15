@@ -152,7 +152,7 @@ onBeforeUnmount(() => {
   letter-spacing: 1.5px;
   line-height: 1.35;
   text-align: center;
-  margin: 30px 0 0 20px;
+  margin: 24px 0 0;
   text-transform: uppercase;
 }
 .texto-descripcion {

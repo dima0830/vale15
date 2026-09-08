@@ -280,7 +280,7 @@ onBeforeUnmount(() => {
 
 @media (min-width: 641px) {
   .gifts-section {
-    max-width: 1080px;
+    max-width: 480px;
     min-height: 580px;
     padding-inline: 3rem;
   }

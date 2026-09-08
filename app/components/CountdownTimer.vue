@@ -86,7 +86,7 @@ onBeforeUnmount(() => {
   grid-template-columns: repeat(4, 1fr);
   gap: 1.5rem;
   justify-items: center;
-  max-width: 320px;
+  max-width: min(100%, 320px);
   margin: 0 auto;
 }
 
@@ -123,15 +123,15 @@ onBeforeUnmount(() => {
 
 @media (max-width: 480px) {
   .timer-grid {
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .time-value {
-    font-size: 4rem;
+    font-size: clamp(2.1rem, 9vw, 3rem);
   }
 
   .time-label {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
   }
 }
 </style>
