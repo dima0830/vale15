@@ -16,6 +16,7 @@
     <InvitationDetails />
     <InvitationMemories />
     <DressCodeSection />
+    <PhotoUpload />
     <InvitationGifts />
     <InvitationForm />
     <InvitationFinal />

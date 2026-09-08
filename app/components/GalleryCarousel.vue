@@ -23,7 +23,7 @@
         class="mariposa-img m4"
       />
 
-      <!-- CONTENEDOR DE LA IMAGEN (AMPLIADO) -->
+      <!-- CONTENEDOR DE LA IMAGEN (275px x 348px) -->
       <div class="gallery-frame">
         <img :src="images[current].src" :alt="images[current].alt" />
       </div>
@@ -90,19 +90,20 @@ onBeforeUnmount(() => {
   margin: 0 auto;
 }
 
-/* CONTENEDOR RELATIVO AMPLIADO */
+/* CONTENEDOR RELATIVO DEL TAMAÑO DE LA IMAGEN */
 .gallery-frame-wrapper {
   position: relative;
-  width: 100%;
-  max-width: 340px; /* Recuadro más grande */
+  width: 275px;
   margin: 0 auto;
 }
 
-/* MARCO Y IMAGEN DE MAYOR TAMAÑO CON BORDES REDONDEADOS */
+/* MARCO Y IMAGEN CON DIMENSIÓN EXACTA DE 275px x 348px */
 .gallery-frame {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 4 / 3;
+  width: 275px;
+  height: 348px;
+  aspect-ratio: 275 / 348;
   border-radius: 20px;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
   background: #f4efe8;

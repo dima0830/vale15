@@ -1,239 +1,156 @@
 <template>
-  <section
-    id="inicio"
-    ref="sectionRef"
-    class="hero-section"
-    :class="{ 'is-visible': isVisible }"
-  >
-    <img
-      src="~/assets/images/principal.png"
-      alt="Fondo Los Novios"
-      class="hero-image"
-    />
-
-    <div class="hero-content">
+  <section id="inicio" class="hero-section">
+    <!-- PANTALLA DE INICIO CON FONDO, SOBRE VERDE Y SELLO INTERACTIVO -->
+    <div v-if="!iniciado" class="pantalla-inicio" @click="iniciarExperiencia">
       <img
-        src="~/assets/images/nombre-vale.png"
-        alt="Sobre cerrado"
-        class="hero-nombre"
+        src="~/assets/images/principal.png"
+        alt="Fondo Principal"
+        class="fondo-inicio"
       />
 
       <div class="sobre-wrapper">
-        <!-- SOBRE CERRADO -->
-        <div v-if="!estaAbierto" class="hero-sobre-cerrado" @click="abrirSobre">
-          <img
-            src="~/assets/images/sobre1.png"
-            alt="Sobre cerrado"
-            class="hero-sobre-base"
-          />
+        <!-- SOBRE VERDE CON RELIEVES -->
+        <img
+          src="~/assets/images/sobre1.png"
+          alt="Sobre verde de invitación"
+          class="hero-sobre-base"
+        />
 
-          <!-- SELLO CON ANIMACIÓN DE PULSO Y ZOOM -->
-          <img
-            src="~/assets/images/sello.png"
-            alt="Sello de cera V"
-            class="sello-interactivo"
-          />
+        <!-- SELLO CORTADO O TRANSPARENTE SOBRE EL SELLO DEL SOBRE CON ANIMACIÓN DE LATIDO/ZOOM -->
+        <img
+          src="~/assets/images/sello.png"
+          alt="Sello de cera V"
+          class="sello-interactivo"
+        />
 
-          <p class="instruccion-abrir">TOCA PARA ABRIR EL SOBRE</p>
-        </div>
+        <p class="instruccion-abrir">TOCA PARA ABRIR EL SOBRE</p>
+      </div>
+    </div>
 
-        <!-- SOBRE ABIERTO -->
-        <div v-else class="hero-sobre-abierto">
-          <img
-            src="~/assets/images/sobre2.png"
-            alt="Fondo sobre"
-            class="hero-sobre-base capa-fondo-sobre"
-          />
-          <img
-            src="~/assets/images/marco.png"
-            alt="Marco foto"
-            class="capa-elemento sobre-foto animar-subida-foto"
-          />
-          <img
-            src="~/assets/images/papel.png"
-            alt="Tarjeta V"
-            class="capa-elemento sobre-papel animar-subida-papel"
-          />
-          <img
-            src="~/assets/images/sobre3.png"
-            alt="Frente del sobre"
-            class="hero-sobre-base capa-frente-sobre"
-          />
+    <!-- REPRODUCTOR DE VIDEO Y FLECHA DE DESPLAZAMIENTO -->
+    <template v-else>
+      <video
+        ref="videoRef"
+        autoplay
+        playsinline
+        class="hero-video"
+        @ended="videoFinalizado = true"
+      >
+        <source src="~/assets/videos/videoH.mp4" type="video/mp4" />
+        Tu navegador no soporta el formato de video.
+      </video>
+
+      <!-- INDICADOR DESLIZA ABAJO (Se muestra solo cuando termina el video) -->
+      <div v-if="videoFinalizado" class="indicador-scroll">
+        <p class="texto-desliza">DESLIZA ABAJO</p>
+        <div class="flecha-saltarina">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 5v14M19 12l-7 7-7-7" />
+          </svg>
         </div>
       </div>
-
-      <img
-        src="~/assets/images/date.png"
-        alt="Sobre cerrado"
-        class="hero-date"
-      />
-    </div>
+    </template>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, nextTick } from "vue";
 
-const estaAbierto = ref(false);
-const sectionRef = ref<HTMLElement | null>(null);
-const isVisible = ref(false);
+const iniciado = ref(false);
+const videoFinalizado = ref(false);
+const videoRef = ref<HTMLVideoElement | null>(null);
 
-let observer: IntersectionObserver | null = null;
+async function iniciarExperiencia() {
+  iniciado.value = true;
+  videoFinalizado.value = false;
 
-function abrirSobre() {
-  estaAbierto.value = true;
-}
+  await nextTick();
 
-onMounted(() => {
-  observer = new IntersectionObserver(
-    ([entry]) => {
-      if (entry.isIntersecting) {
-        isVisible.value = true;
-        if (observer && sectionRef.value) {
-          observer.unobserve(sectionRef.value);
-        }
-      }
-    },
-    { threshold: 0.2 },
-  );
-
-  if (sectionRef.value) {
-    observer.observe(sectionRef.value);
+  if (videoRef.value) {
+    videoRef.value.muted = false;
+    videoRef.value.play().catch((error) => {
+      console.error("Error al reproducir el video:", error);
+    });
   }
-});
-
-onBeforeUnmount(() => {
-  if (observer) observer.disconnect();
-});
+}
 </script>
 
 <style scoped>
 .hero-section {
   position: relative;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   height: 100dvh;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  background-color: #000000;
+}
+
+/* PANTALLA DE INICIO */
+.pantalla-inicio {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
-  padding: 16px;
-  box-sizing: border-box;
+  cursor: pointer;
 }
 
-.hero-image {
+.fondo-inicio {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
   z-index: 1;
-  opacity: 0;
-  transform: scale(1.05);
-  transition:
-    opacity 1.2s cubic-bezier(0.25, 1, 0.5, 1),
-    transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-.hero-content {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  max-width: 360px;
-  height: 85%;
-  margin: 0 auto;
-}
-
-.hero-nombre {
-  width: 60%;
-  height: auto;
-  display: block;
-  margin-bottom: 16px;
-  opacity: 0;
-  transform: translateY(-20px);
-  transition:
-    opacity 0.9s cubic-bezier(0.25, 1, 0.5, 1) 0.3s,
-    transform 0.9s cubic-bezier(0.25, 1, 0.5, 1) 0.3s;
-}
-
+/* CONTENEDOR DEL SOBRE */
 .sobre-wrapper {
   position: relative;
-  width: 100%;
-  max-width: 280px;
-  aspect-ratio: 1.5 / 1;
-  margin: auto 0;
-  opacity: 0;
-  transform: translateY(25px) scale(0.95);
-  transition:
-    opacity 1s cubic-bezier(0.25, 1, 0.5, 1) 0.5s,
-    transform 1s cubic-bezier(0.25, 1, 0.5, 1) 0.5s;
+  z-index: 2;
+  width: 90%;
+  max-width: 320px;
+  aspect-ratio: 1.35 / 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
 }
 
-.hero-date {
-  width: 60%;
-  height: auto;
-  display: block;
-  margin-top: 36px;
-  opacity: 0;
-  transform: translateY(20px);
-  transition:
-    opacity 0.9s cubic-bezier(0.25, 1, 0.5, 1) 0.7s,
-    transform 0.9s cubic-bezier(0.25, 1, 0.5, 1) 0.7s;
+.pantalla-inicio:hover .sobre-wrapper {
+  transform: scale(1.03);
 }
 
-/* =========================================
-   ESTADOS DE VISIBILIDAD (AL HACER SCROLL)
-   ========================================= */
-.is-visible .hero-image {
-  opacity: 1;
-  transform: scale(1);
-}
-
-.is-visible .hero-nombre,
-.is-visible .hero-date {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.is-visible .sobre-wrapper {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-/* SOBRE & ELEMENTOS INTERNOS */
 .hero-sobre-base {
   width: 100%;
   height: auto;
   display: block;
-}
-
-.hero-sobre-cerrado {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  cursor: pointer;
-  text-align: center;
-  transition: transform 0.3s ease;
-}
-
-.hero-sobre-cerrado:hover {
-  transform: scale(1.02);
+  border-radius: 4px;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.6));
 }
 
 .sello-interactivo {
   position: absolute;
-  top: 50%;
+  top: 51.5%;
   left: 50%;
-  width: 65px;
+  width: 54px;
   height: auto;
   z-index: 5;
-  animation: latidoSello 2.2s ease-in-out infinite;
-  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.35));
+  animation: latidoZoomSello 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
 }
 
 .instruccion-abrir {
@@ -241,111 +158,108 @@ onBeforeUnmount(() => {
   bottom: -30px;
   left: 0;
   right: 0;
+  text-align: center;
   color: #ffffff;
   font-size: 0.8rem;
-  letter-spacing: 1.5px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  font-weight: 400;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
   margin: 0;
 }
 
-.hero-sobre-abierto {
-  position: absolute;
-  bottom: 0;
-  left: 0;
+/* REPRODUCTOR DE VIDEO */
+.hero-video {
   width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
-.capa-fondo-sobre {
+/* INDICADOR FLECHA DESLIZAR ABAJO */
+.indicador-scroll {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  z-index: 10;
-}
-
-.capa-elemento {
-  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 20;
-  bottom: 0px;
-}
-
-.sobre-foto {
-  width: 70%;
-  left: 3%;
-  bottom: 4px;
-}
-
-.sobre-papel {
-  width: 80%;
-  right: 0%;
-  bottom: -40px;
-}
-
-.capa-frente-sobre {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
   pointer-events: none;
+  animation: fadeIn 0.8s ease-out forwards;
 }
 
-/* ANIMACIONES INTERNAS DEL SOBRE */
-.animar-subida-foto {
-  animation: emergerFoto 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+.texto-desliza {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
-.animar-subida-papel {
-  animation: emergerPapel 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.12s forwards;
-  opacity: 0;
+.flecha-saltarina {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+  animation: rebotar 1.8s infinite;
 }
 
-@keyframes emergerFoto {
+/* ANIMACIONES */
+@keyframes latidoZoomSello {
   0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(-80px) scale(1);
-  }
-}
-
-@keyframes emergerPapel {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(-75px) scale(1);
-  }
-}
-
-@keyframes latidoSello {
-  0% {
-    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    transform: translate(-50%, -50%) scale(1);
   }
   30% {
-    transform: translate(-50%, -50%) scale(1.12) rotate(-3deg);
+    transform: translate(-50%, -50%) scale(1.18);
   }
   50% {
-    transform: translate(-50%, -50%) scale(1.05) rotate(2deg);
+    transform: translate(-50%, -50%) scale(1.06);
   }
   70% {
-    transform: translate(-50%, -50%) scale(1.15) rotate(-1deg);
+    transform: translate(-50%, -50%) scale(1.22);
   }
   100% {
-    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes rebotar {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-12px);
+  }
+  60% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
   }
 }
 
 @media (max-height: 660px) {
   .sobre-wrapper {
-    max-width: 240px;
+    max-width: 260px;
   }
   .sello-interactivo {
-    width: 55px;
+    width: 44px;
   }
 }
 </style>

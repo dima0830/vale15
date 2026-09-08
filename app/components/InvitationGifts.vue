@@ -7,14 +7,14 @@
   >
     <!-- PERSONAJE: RANITAS (ARRIBA A LA DERECHA) -->
     <img
-      src="~/assets/images/sapo1.png"
+      :src="frogsImage"
       alt="Ranitas animadas"
       class="character character-frogs"
     />
 
     <!-- MARIPOSA FLOTANTE IZQUIERDA -->
     <img
-      src="~/assets/images/mariposa-.png"
+      :src="butterflyImage"
       alt=""
       class="butterfly butterfly-top-left"
       aria-hidden="true"
@@ -50,7 +50,7 @@
 
     <!-- MARIPOSA FLOTANTE DERECHA -->
     <img
-      src="~/assets/images/mariposa-.png"
+      :src="butterflyImage"
       alt=""
       class="butterfly butterfly-bottom-right"
       aria-hidden="true"
@@ -59,7 +59,7 @@
     <!-- SELLO DE NIÑOS PEQUEÑO -->
     <div class="no-kids-container animated-item delay-4">
       <img
-        src="~/assets/images/sello-2.png"
+        :src="stampImage"
         alt="Solo jóvenes y adultos, no niños pequeños"
         class="stamp-img"
       />
@@ -67,7 +67,7 @@
 
     <!-- PERSONAJE: COCODRILO (ABAJO A LA IZQUIERDA) -->
     <img
-      src="~/assets/images/cocodrilo.png"
+      :src="crocodileImage"
       alt="Cocodrilo tocando trompeta"
       class="character character-croc"
     />
@@ -76,6 +76,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from "vue";
+import froggsImage from "~/assets/images/sapo1.png";
+import butterflyImage from "~/assets/images/mariposa-.png";
+import stampImage from "~/assets/images/sello-2.png";
+import crocodileImage from "~/assets/images/cocodrilo.png";
 
 const sectionRef = ref<HTMLElement | null>(null);
 const isVisible = ref(false);
@@ -242,7 +246,7 @@ onBeforeUnmount(() => {
 
 .stamp-img {
   width: 100%;
-  max-width: 140px;
+  max-width: 180px;
   height: auto;
   display: block;
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.12));
@@ -296,7 +300,7 @@ onBeforeUnmount(() => {
   }
 
   .stamp-img {
-    max-width: 185px;
+    max-width: 220px;
   }
 }
 </style>

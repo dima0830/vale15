@@ -6,7 +6,11 @@
       <h1 class="main-title">ASISTENCIA</h1>
     </header>
 
-    <form v-if="!submitted" class="rsvp-form" @submit.prevent="confirmAttendance">
+    <form
+      v-if="!submitted"
+      class="rsvp-form"
+      @submit.prevent="confirmAttendance"
+    >
       <!-- CAMPO: NOMBRE COMPLETO -->
       <div class="form-group">
         <label for="guest-name" class="form-label">NOMBRE COMPLETO*</label>
@@ -23,7 +27,7 @@
       <!-- CAMPO: NÚMERO MÓVIL (CON MARIPOSA VERDE CLARO) -->
       <div class="form-group field-with-butterfly">
         <img
-          src="~/assets/images/mariposa-.png"
+          :src="butterflyImage"
           alt=""
           class="butterfly butterfly-phone"
           aria-hidden="true"
@@ -63,7 +67,7 @@
         </div>
         <!-- MARIPOSA ESMERALDA -->
         <img
-          src="~/assets/images/mariposa-.png"
+          :src="butterflyImage"
           alt=""
           class="butterfly butterfly-options"
           aria-hidden="true"
@@ -110,13 +114,13 @@
       </h3>
       <p class="confirmation-detail">
         <span v-if="isAttending">
-          Hemos recibido tu confirmación, <strong>{{ submittedName }}</strong>,
-          con {{ submittedPasses }}
+          Hemos recibido tu confirmación, <strong>{{ submittedName }}</strong
+          >, con {{ submittedPasses }}
           {{ submittedPasses === 1 ? "pase" : "pases" }}. ¡Nos vemos pronto!
         </span>
         <span v-else>
-          Gracias por avisarnos, <strong>{{ submittedName }}</strong>.
-          Lamentamos que no puedas acompañarnos.
+          Gracias por avisarnos, <strong>{{ submittedName }}</strong
+          >. Lamentamos que no puedas acompañarnos.
         </span>
       </p>
     </div>
@@ -129,13 +133,15 @@
     <!-- SECCIÓN INFERIOR: TE ESPERAMOS & FLOR DE LOTO -->
     <div class="footer-decoration">
       <p class="footer-title">Te esperamos</p>
-      <img src="~/assets/images/loto.png" alt="Flor de loto" class="loto-img" />
+      <img :src="lotusImage" alt="Flor de loto" class="loto-img" />
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import butterflyImage from "~/assets/images/mariposa-.png";
+import lotusImage from "~/assets/images/loto.png";
 
 const guestName = ref("");
 const guestPhone = ref("");
@@ -148,7 +154,9 @@ const submitted = ref(false);
 const submittedName = ref("");
 const submittedPasses = ref(0);
 
-const isAttending = computed(() => attendance.value === "Acepto con mucho gusto");
+const isAttending = computed(
+  () => attendance.value === "Acepto con mucho gusto",
+);
 
 async function confirmAttendance() {
   if (!guestName.value.trim()) {
