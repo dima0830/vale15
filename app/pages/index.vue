@@ -1,14 +1,5 @@
 <template>
   <main class="invitation-shell">
-    <nav class="site-nav" aria-label="Navegación principal">
-      <a href="#inicio" class="nav-mark">.</a>
-      <div class="nav-links">
-        <a href="#historia">Nuestra historia</a>
-        <a href="#detalles">Detalles</a>
-        <a href="#fotos">Recuerdos</a>
-      </div>
-    </nav>
-
     <InvitationHero />
     <InvitationAudio />
     <InvitationIntro />

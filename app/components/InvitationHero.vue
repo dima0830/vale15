@@ -1,6 +1,6 @@
 <template>
   <section id="inicio" class="hero-section">
-    <!-- PANTALLA DE INICIO CON FONDO, SOBRE VERDE Y SELLO INTERACTIVO -->
+    <!-- PANTALLA DE INICIO CON FONDO, TÍTULO, SOBRE VERDE, FECHA Y SELLO INTERACTIVO -->
     <div v-if="!iniciado" class="pantalla-inicio" @click="iniciarExperiencia">
       <img
         src="~/assets/images/principal.png"
@@ -8,22 +8,41 @@
         class="fondo-inicio"
       />
 
-      <div class="sobre-wrapper">
-        <!-- SOBRE VERDE CON RELIEVES -->
+      <!-- CONTENEDOR PRINCIPAL VERTICAL -->
+      <div class="hero-contenido">
+        <!-- TÍTULO ARRIBA DEL SOBRE -->
         <img
-          src="~/assets/images/sobre1.png"
-          alt="Sobre verde de invitación"
-          class="hero-sobre-base"
+          src="~/assets/images/nombre-vale.png"
+          alt="Los Quince Años de Vale"
+          class="titulo-vale"
         />
 
-        <!-- SELLO CORTADO O TRANSPARENTE SOBRE EL SELLO DEL SOBRE CON ANIMACIÓN DE LATIDO/ZOOM -->
-        <img
-          src="~/assets/images/sello.png"
-          alt="Sello de cera V"
-          class="sello-interactivo"
-        />
+        <!-- CONTENEDOR DEL SOBRE -->
+        <div class="sobre-wrapper">
+          <!-- SOBRE VERDE CON RELIEVES -->
+          <img
+            src="~/assets/images/sobre1.png"
+            alt="Sobre verde de invitación"
+            class="hero-sobre-base"
+          />
 
+          <!-- SELLO INTERACTIVO SOBRE EL SELLO DEL SOBRE -->
+          <img
+            src="~/assets/images/sello.png"
+            alt="Sello de cera V"
+            class="sello-interactivo"
+          />
+        </div>
+
+        <!-- INSTRUCCIÓN DE APERTURA -->
         <p class="instruccion-abrir">TOCA PARA ABRIR EL SOBRE</p>
+
+        <!-- FECHA ABAJO DEL SOBRE -->
+        <img
+          src="~/assets/images/date.png"
+          alt="26 | 09 | 26"
+          class="fecha-evento"
+        />
       </div>
     </div>
 
@@ -106,6 +125,8 @@ async function iniciarExperiencia() {
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .fondo-inicio {
@@ -117,10 +138,31 @@ async function iniciarExperiencia() {
   z-index: 1;
 }
 
+/* CONTENEDOR VERTICAL APILADO */
+.hero-contenido {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 380px;
+  gap: 1rem;
+}
+
+/* TÍTULO ARRIBA */
+.titulo-vale {
+  width: 80%;
+  max-width: 260px;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+}
+
 /* CONTENEDOR DEL SOBRE */
 .sobre-wrapper {
   position: relative;
-  z-index: 2;
   width: 90%;
   max-width: 320px;
   aspect-ratio: 1.35 / 1;
@@ -153,11 +195,18 @@ async function iniciarExperiencia() {
   filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
 }
 
+/* FECHA ABAJO */
+.fecha-evento {
+  width: 65%;
+  max-width: 220px;
+  height: auto;
+  display: block;
+  margin-top: 0.2rem;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.5));
+}
+
+/* INSTRUCCIÓN */
 .instruccion-abrir {
-  position: absolute;
-  bottom: -30px;
-  left: 0;
-  right: 0;
   text-align: center;
   color: #ffffff;
   font-size: 0.8rem;
@@ -165,6 +214,7 @@ async function iniciarExperiencia() {
   letter-spacing: 1.8px;
   text-transform: uppercase;
   margin: 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 /* REPRODUCTOR DE VIDEO */
@@ -255,11 +305,20 @@ async function iniciarExperiencia() {
 }
 
 @media (max-height: 660px) {
+  .hero-contenido {
+    gap: 0.5rem;
+  }
+  .titulo-vale {
+    max-width: 200px;
+  }
   .sobre-wrapper {
-    max-width: 260px;
+    max-width: 240px;
   }
   .sello-interactivo {
-    width: 44px;
+    width: 42px;
+  }
+  .fecha-evento {
+    max-width: 170px;
   }
 }
 </style>
