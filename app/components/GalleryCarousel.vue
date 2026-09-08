@@ -179,7 +179,11 @@ onBeforeUnmount(() => {
 
 .gallery-dots {
   display: flex;
-  gap: 0.6rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  row-gap: 0.5rem;
+  column-gap: 0.5rem;
+  max-width: 260px;
 }
 
 .gallery-dots button {

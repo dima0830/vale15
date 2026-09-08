@@ -125,36 +125,33 @@ onBeforeUnmount(() => {
   width: 100%;
   margin-top: 10px;
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  align-items: flex-end;
+  gap: 4%;
   min-height: 200px;
   z-index: 3;
 }
 
-/* TIANA (Posicionada absolutamente a la izquierda) */
+/* TIANA (ancho fluido, sin solaparse con el texto) */
 .tiana-img {
-  position: absolute;
-  left: -10px;
-  bottom: 0px;
-  width: 160px;
+  flex: 0 0 auto;
+  width: clamp(105px, 34vw, 160px);
   height: auto;
   z-index: 5;
 }
 
 /* TEXTO */
 .texto-container {
-  width: 65%;
-  margin-left: auto;
+  flex: 1 1 auto;
+  min-width: 0;
   margin-bottom: 10px;
-  padding-right: 10px;
   z-index: 4;
 }
 
 .mensaje {
   font-family: "Cormorant", serif;
   color: #235848;
-  font-size: 18px;
-  line-height: 1.4;
+  font-size: clamp(0.95rem, 4vw, 1.125rem);
+  line-height: 1.45;
   text-align: left;
   font-weight: 500;
   margin: 0;
@@ -301,16 +298,8 @@ onBeforeUnmount(() => {
 
 /* Ajustes responsive */
 @media (max-width: 360px) {
-  .tiana-img {
-    width: 130px;
-    left: -15px;
-  }
-  .texto-container {
-    width: 70%;
-  }
-  .mensaje {
-    padding-left: 15px;
-    font-size: 16px;
+  .inferior-container {
+    gap: 3%;
   }
 }
 </style>

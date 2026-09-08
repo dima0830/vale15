@@ -177,17 +177,20 @@ onBeforeUnmount(() => {
 .padres-box {
   position: relative;
   margin: 30px 0 30px 0;
+  padding-inline: 26px;
+  box-sizing: border-box;
 }
 
 .nombre-padre {
   font-family: "Great Vibes", cursive;
-  font-size: 40px;
+  font-size: clamp(1.7rem, 8vw, 2.5rem);
   font-weight: 400;
   margin: 0;
   position: relative;
   display: inline-block;
   color: #a39236;
   transition: transform 0.3s ease;
+  max-width: 100%;
 }
 
 .nombre-padre:hover {
@@ -197,24 +200,24 @@ onBeforeUnmount(() => {
 .ampersand {
   display: block;
   font-family: "Great Vibes", cursive;
-  font-size: 40px;
+  font-size: clamp(1.7rem, 8vw, 2.5rem);
   margin: -6px 0;
   color: #a39236;
 }
 
 .mini-mariposa {
   position: absolute;
-  width: 22px;
+  width: 20px;
   height: auto;
   animation: flutter 3s ease-in-out infinite alternate;
 }
 .mini-mariposa.top {
   top: 0;
-  right: -24px;
+  right: -16px;
 }
 .mini-mariposa.bottom {
   top: -4px;
-  left: -24px;
+  left: -16px;
   animation-delay: 1.5s;
 }
 
