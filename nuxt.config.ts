@@ -12,6 +12,7 @@ export default defineNuxtConfig({
     dbUser: "vale15_user",
     dbPassword: "",
     dbName: "vale15",
+    adminPassword: "",
   },
 
   css: ["~/assets/css/main.css"], // ← usa ~ en lugar de ./app
