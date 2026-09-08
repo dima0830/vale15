@@ -96,7 +96,9 @@
       </div>
 
       <!-- BOTÓN ENVIAR -->
-      <button class="button-submit" type="submit">ENVIAR 💚</button>
+      <button class="button-submit" type="submit" :disabled="isSubmitting">
+        {{ isSubmitting ? "ENVIANDO..." : "ENVIAR 💚" }}
+      </button>
     </form>
 
     <!-- MENSAJES DE ESTADO -->
@@ -121,7 +123,13 @@ const attendance = ref("");
 const passesCount = ref<number | null>(null);
 const confirmationError = ref("");
 
-function confirmAttendance() {
+const isSubmitting = ref(false);
+
+async function confirmAttendance() {
+  if (!guestName.value.trim()) {
+    confirmationError.value = "Por favor escribe tu nombre completo.";
+    return;
+  }
   if (!attendance.value) {
     confirmationError.value = "Por favor selecciona si asistirás.";
     return;
@@ -132,6 +140,25 @@ function confirmAttendance() {
   }
 
   confirmationError.value = "";
+  isSubmitting.value = true;
+
+  try {
+    await $fetch("/api/rsvp", {
+      method: "POST",
+      body: {
+        fullName: guestName.value.trim(),
+        phone: guestPhone.value.trim(),
+        attendance: attendance.value,
+        passesCount: passesCount.value,
+      },
+    });
+  } catch (error) {
+    confirmationError.value =
+      "No pudimos guardar tu confirmación, pero puedes continuar por WhatsApp.";
+  } finally {
+    isSubmitting.value = false;
+  }
+
   const phoneNumber = "573001234567";
   const passesText = `${passesCount.value} ${passesCount.value === 1 ? "pase" : "pases"}`;
   const message = `Hola, soy ${guestName.value} (Tel: ${guestPhone.value || "N/A"}). ${attendance.value}. Usaré: ${passesText}.`;

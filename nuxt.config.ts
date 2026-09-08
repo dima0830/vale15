@@ -4,6 +4,16 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
 
+  // Valores por defecto; en runtime se sobreescriben con las variables
+  // de entorno NUXT_DB_* (ver docker-compose.yml), sin necesidad de rebuild.
+  runtimeConfig: {
+    dbHost: "mysql",
+    dbPort: "3306",
+    dbUser: "vale15_user",
+    dbPassword: "",
+    dbName: "vale15",
+  },
+
   css: ["~/assets/css/main.css"], // ← usa ~ en lugar de ./app
 
   app: {
