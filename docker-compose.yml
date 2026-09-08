@@ -17,6 +17,8 @@ services:
       NUXT_DB_USER: ${DB_USER}
       NUXT_DB_PASSWORD: ${DB_PASSWORD}
       NUXT_DB_NAME: ${DB_NAME}
+      # contraseña de acceso a /invitados
+      NUXT_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     networks:
       - nginx-proxy
       - cluster
