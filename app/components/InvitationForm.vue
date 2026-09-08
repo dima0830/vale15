@@ -6,7 +6,7 @@
       <h1 class="main-title">ASISTENCIA</h1>
     </header>
 
-    <form class="rsvp-form" @submit.prevent="confirmAttendance">
+    <form v-if="!submitted" class="rsvp-form" @submit.prevent="confirmAttendance">
       <!-- CAMPO: NOMBRE COMPLETO -->
       <div class="form-group">
         <label for="guest-name" class="form-label">NOMBRE COMPLETO*</label>
@@ -101,6 +101,26 @@
       </button>
     </form>
 
+    <!-- MENSAJE DE CONFIRMACIÓN -->
+    <div v-else class="confirmation-message">
+      <span class="confirmation-icon" aria-hidden="true">✓</span>
+      <h2 class="script-title">¡Gracias!</h2>
+      <h3 class="main-title confirmation-subtitle">
+        {{ isAttending ? "CONFIRMACIÓN RECIBIDA" : "RESPUESTA REGISTRADA" }}
+      </h3>
+      <p class="confirmation-detail">
+        <span v-if="isAttending">
+          Hemos recibido tu confirmación, <strong>{{ submittedName }}</strong>,
+          con {{ submittedPasses }}
+          {{ submittedPasses === 1 ? "pase" : "pases" }}. ¡Nos vemos pronto!
+        </span>
+        <span v-else>
+          Gracias por avisarnos, <strong>{{ submittedName }}</strong>.
+          Lamentamos que no puedas acompañarnos.
+        </span>
+      </p>
+    </div>
+
     <!-- MENSAJES DE ESTADO -->
     <p v-if="confirmationError" class="confirmation-error">
       {{ confirmationError }}
@@ -115,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 const guestName = ref("");
 const guestPhone = ref("");
@@ -124,6 +144,11 @@ const passesCount = ref<number | null>(null);
 const confirmationError = ref("");
 
 const isSubmitting = ref(false);
+const submitted = ref(false);
+const submittedName = ref("");
+const submittedPasses = ref(0);
+
+const isAttending = computed(() => attendance.value === "Acepto con mucho gusto");
 
 async function confirmAttendance() {
   if (!guestName.value.trim()) {
@@ -152,19 +177,15 @@ async function confirmAttendance() {
         passesCount: passesCount.value,
       },
     });
+    submittedName.value = guestName.value.trim();
+    submittedPasses.value = passesCount.value;
+    submitted.value = true;
   } catch (error) {
     confirmationError.value =
-      "No pudimos guardar tu confirmación, pero puedes continuar por WhatsApp.";
+      "No pudimos guardar tu confirmación. Por favor intenta nuevamente.";
   } finally {
     isSubmitting.value = false;
   }
-
-  const phoneNumber = "573001234567";
-  const passesText = `${passesCount.value} ${passesCount.value === 1 ? "pase" : "pases"}`;
-  const message = `Hola, soy ${guestName.value} (Tel: ${guestPhone.value || "N/A"}). ${attendance.value}. Usaré: ${passesText}.`;
-  const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-  window.open(whatsappUrl, "_blank");
 }
 </script>
 
@@ -424,6 +445,60 @@ async function confirmAttendance() {
   color: #d9534f;
   font-size: 13px;
   margin-top: 10px;
+}
+
+/* MENSAJE DE CONFIRMACIÓN */
+.confirmation-message {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 10px 6px;
+  animation: fade-in-up 0.4s ease;
+}
+
+.confirmation-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 6px;
+  border-radius: 50%;
+  background-color: #cce0c9;
+  border: 1.5px solid #1c4b3c;
+  color: #1c4b3c;
+  font-size: 22px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirmation-subtitle {
+  margin: -2px 0 4px 0;
+}
+
+.confirmation-detail {
+  max-width: 300px;
+  font-family: "Open Sans", sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #2d5548;
+}
+
+.confirmation-detail strong {
+  color: #1c4b3c;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* SECCIÓN INFERIOR */
