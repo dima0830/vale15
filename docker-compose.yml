@@ -1,0 +1,18 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      # nginx-proxy + acme-companion
+      VIRTUAL_HOST: vale15.droni.vip
+      VIRTUAL_PORT: 3000
+      LETSENCRYPT_HOST: vale15.droni.vip
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+    networks:
+      - nginx-proxy
+
+networks:
+  nginx-proxy:
+    external: true
