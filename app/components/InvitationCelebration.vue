@@ -52,6 +52,7 @@
         <span class="numero-dia pulse-glow">26</span>
         <span class="anio-texto">2026</span>
       </div>
+      <h2 class="hora-title">7:00 p. m.</h2>
     </div>
 
     <!-- CALENDARIO CON NAVEEN -->
@@ -259,6 +260,14 @@ onBeforeUnmount(() => {
   color: #235848;
   font-weight: 400;
   margin: 0 0 10px 0;
+  line-height: 1;
+}
+.hora-title {
+  font-family: "Cormorant", serif;
+  font-size: 3.2rem;
+  color: #235848;
+  font-weight: 400;
+  margin: 20px 0 10px 0;
   line-height: 1;
 }
 
@@ -508,7 +517,9 @@ onBeforeUnmount(() => {
   .mes-title {
     font-size: 2.8rem;
   }
-
+  .hora-title {
+    font-size: 2rem;
+  }
   .dia-texto,
   .anio-texto {
     font-size: 0.95rem;
