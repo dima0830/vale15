@@ -2,7 +2,7 @@
   <div class="countdown-timer">
     <div class="timer-grid">
       <div v-if="eventHasPassed" class="countdown-complete">
-        La celebración ya sucedió
+        ¡La celebración es hoy!
       </div>
       <template v-else>
         <div class="time-unit">
