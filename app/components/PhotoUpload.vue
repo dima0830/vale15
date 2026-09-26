@@ -1,5 +1,5 @@
 <template>
-  <section class="fotos-up-section">
+  <section id="fotos" class="fotos-up-section">
     <div class="fotos-up-card">
       <!-- TÍTULO CON EL ESTILO DE LA IMAGEN DE REFERENCIA -->
       <div class="header-titulo">
@@ -9,7 +9,21 @@
 
       <p class="section-description">
         En este día tan especial, comparte tus fotografías con nosotros.
+        Aparecerán en la pantalla de la fiesta.
       </p>
+
+      <!-- NOMBRE OPCIONAL -->
+      <div class="name-field">
+        <label for="guest-name" class="name-label">Tu nombre (opcional)</label>
+        <input
+          id="guest-name"
+          v-model="guestName"
+          type="text"
+          maxlength="80"
+          class="name-input"
+          placeholder="Así aparecerá junto a tu foto"
+        />
+      </div>
 
       <!-- ÁREA INTERACTIVA PARA SUBIR IMÁGENES -->
       <div
@@ -25,6 +39,14 @@
           type="file"
           accept="image/*"
           multiple
+          class="hidden-file-input"
+          @change="handleFileSelect"
+        />
+        <input
+          ref="cameraInputRef"
+          type="file"
+          accept="image/*"
+          capture="environment"
           class="hidden-file-input"
           @change="handleFileSelect"
         />
@@ -50,6 +72,9 @@
             Arrastra tus fotos aquí o <span>haz clic para seleccionar</span>
           </p>
           <span class="file-limit">Formatos permitidos: JPG, PNG, WEBP</span>
+          <button type="button" class="btn-camera" @click.stop="triggerCamera">
+            📷 Tomar foto
+          </button>
         </div>
       </div>
 
@@ -60,12 +85,17 @@
         </h3>
         <div class="preview-grid">
           <div
-            v-for="(file, index) in selectedFiles"
-            :key="file.name + index"
+            v-for="(item, index) in selectedFiles"
+            :key="item.preview"
             class="preview-item"
+            :class="`is-${item.state}`"
           >
-            <img :src="file.preview" :alt="file.name" />
+            <img :src="item.preview" :alt="item.name" />
+            <span v-if="item.state === 'uploading'" class="preview-badge">…</span>
+            <span v-else-if="item.state === 'done'" class="preview-badge">✓</span>
+            <span v-else-if="item.state === 'error'" class="preview-badge" :title="item.error">!</span>
             <button
+              v-if="!isSubmitting && item.state !== 'done'"
               type="button"
               class="btn-remove"
               title="Quitar foto"
@@ -77,23 +107,15 @@
         </div>
       </div>
 
-      <!-- BOTONES DE ACCIÓN: GUARDAR Y ENVIAR -->
+      <!-- BOTÓN DE ENVÍO -->
       <div class="actions-group">
         <button
           type="button"
-          class="btn-secondary"
-          :disabled="!selectedFiles.length || isSubmitting"
-          @click="guardarBorrador"
-        >
-          Guardar
-        </button>
-        <button
-          type="button"
           class="btn-primary"
-          :disabled="!selectedFiles.length || isSubmitting"
+          :disabled="!pendingCount || isSubmitting"
           @click="enviarFotos"
         >
-          <span v-if="isSubmitting">Enviando...</span>
+          <span v-if="isSubmitting">Enviando {{ progressText }}...</span>
           <span v-else>Enviar Fotografías</span>
         </button>
       </div>
@@ -107,33 +129,78 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
+
+type UploadState = "ready" | "uploading" | "done" | "error";
 
 interface PreviewFile {
   file: File;
   name: string;
   preview: string;
+  state: UploadState;
+  error?: string;
 }
 
+const NAME_STORAGE_KEY = "vale15_guest_name";
+// El proxy (nginx) suele limitar el cuerpo a ~1 MB: comprimimos por debajo.
+const TARGET_BYTES = 900 * 1024;
+
 const fileInputRef = ref<HTMLInputElement | null>(null);
+const cameraInputRef = ref<HTMLInputElement | null>(null);
 const selectedFiles = ref<PreviewFile[]>([]);
+const guestName = ref("");
 const isDragging = ref(false);
 const isSubmitting = ref(false);
+const uploadedInBatch = ref(0);
+const batchSize = ref(0);
 const statusMessage = ref("");
 const statusType = ref<"success" | "error">("success");
+
+const pendingCount = computed(
+  () => selectedFiles.value.filter((f) => f.state === "ready" || f.state === "error").length
+);
+const progressText = computed(() => `${uploadedInBatch.value + 1}/${batchSize.value}`);
+
+onMounted(() => {
+  try {
+    guestName.value = localStorage.getItem(NAME_STORAGE_KEY) ?? "";
+  } catch {}
+
+  // El QR de la pantalla apunta a /#fotos: bajamos directo a esta sección
+  // (esperando a que carguen las imágenes de arriba para no quedar corridos).
+  if (location.hash === "#fotos") {
+    const scrollHere = () => document.getElementById("fotos")?.scrollIntoView({ block: "start" });
+    setTimeout(scrollHere, 300);
+    window.addEventListener("load", () => setTimeout(scrollHere, 100), { once: true });
+  }
+});
+
+onBeforeUnmount(() => {
+  selectedFiles.value.forEach((item) => URL.revokeObjectURL(item.preview));
+});
 
 function triggerFileInput() {
   fileInputRef.value?.click();
 }
 
+function triggerCamera() {
+  cameraInputRef.value?.click();
+}
+
 function addFiles(files: FileList | File[]) {
+  // Al agregar nuevas, limpiamos las que ya se enviaron.
+  selectedFiles.value
+    .filter((f) => f.state === "done")
+    .forEach((f) => URL.revokeObjectURL(f.preview));
+  selectedFiles.value = selectedFiles.value.filter((f) => f.state !== "done");
+
   Array.from(files).forEach((file) => {
-    if (file.type.startsWith("image/")) {
-      const preview = URL.createObjectURL(file);
+    if (file.type.startsWith("image/") || /\.(heic|heif)$/i.test(file.name)) {
       selectedFiles.value.push({
         file,
         name: file.name,
-        preview,
+        preview: URL.createObjectURL(file),
+        state: "ready",
       });
     }
   });
@@ -159,37 +226,90 @@ function removeFile(index: number) {
   selectedFiles.value.splice(index, 1);
 }
 
-function guardarBorrador() {
-  statusType.value = "success";
-  statusMessage.value = "Tus fotos se guardaron temporalmente.";
-  setTimeout(() => (statusMessage.value = ""), 4000);
+function canvasToBlob(canvas: HTMLCanvasElement, quality: number) {
+  return new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", quality));
+}
+
+// Redimensiona y comprime en el navegador: subidas rápidas con el wifi del salón.
+async function compressImage(file: File) {
+  let bitmap: ImageBitmap;
+  try {
+    bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  } catch {
+    // El navegador no pudo decodificarla (p. ej. HEIC): se envía tal cual.
+    return { blob: file as Blob, width: null, height: null };
+  }
+
+  for (const maxSide of [2048, 1600, 1280]) {
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+
+    for (const quality of [0.85, 0.75, 0.65]) {
+      const blob = await canvasToBlob(canvas, quality);
+      if (blob && blob.size <= TARGET_BYTES) {
+        bitmap.close();
+        return { blob, width: canvas.width, height: canvas.height };
+      }
+    }
+  }
+
+  bitmap.close();
+  throw new Error("La foto es demasiado pesada.");
+}
+
+async function uploadOne(item: PreviewFile) {
+  const { blob, width, height } = await compressImage(item.file);
+  const formData = new FormData();
+  formData.append("foto", blob, item.name.replace(/\.\w+$/, "") + ".jpg");
+  formData.append("guestName", guestName.value.trim());
+  if (width && height) {
+    formData.append("width", String(width));
+    formData.append("height", String(height));
+  }
+  await $fetch("/api/photos", { method: "POST", body: formData });
 }
 
 async function enviarFotos() {
-  if (!selectedFiles.value.length) return;
+  const queue = selectedFiles.value.filter((f) => f.state === "ready" || f.state === "error");
+  if (!queue.length) return;
+
+  try {
+    localStorage.setItem(NAME_STORAGE_KEY, guestName.value.trim());
+  } catch {}
 
   isSubmitting.value = true;
   statusMessage.value = "";
+  uploadedInBatch.value = 0;
+  batchSize.value = queue.length;
+  let failed = 0;
 
-  try {
-    const formData = new FormData();
-    selectedFiles.value.forEach((item, index) => {
-      formData.append(`fotos[${index}]`, item.file);
-    });
+  for (const item of queue) {
+    item.state = "uploading";
+    try {
+      await uploadOne(item);
+      item.state = "done";
+    } catch (error: any) {
+      item.state = "error";
+      item.error = error?.data?.statusMessage || error?.message || "Error al subir";
+      failed++;
+    }
+    uploadedInBatch.value++;
+  }
 
-    // Simulación del envío al servidor
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    statusType.value = "success";
-    statusMessage.value = "¡Gracias por compartir tus fotografías!";
-
-    selectedFiles.value.forEach((item) => URL.revokeObjectURL(item.preview));
-    selectedFiles.value = [];
-  } catch (error) {
+  isSubmitting.value = false;
+  if (failed) {
     statusType.value = "error";
-    statusMessage.value = "Error al subir las imágenes. Inténtalo de nuevo.";
-  } finally {
-    isSubmitting.value = false;
+    statusMessage.value =
+      failed === queue.length
+        ? "No se pudieron subir las fotos. Inténtalo de nuevo."
+        : `${failed} foto(s) no se pudieron subir. Toca "Enviar" para reintentar.`;
+  } else {
+    statusType.value = "success";
+    statusMessage.value = "¡Gracias por compartir tus fotografías! Aparecerán en pantalla en unos minutos.";
+    setTimeout(() => (statusMessage.value = ""), 6000);
   }
 }
 </script>
@@ -401,6 +521,78 @@ async function enviarFotos() {
   opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
+}
+
+/* NOMBRE */
+.name-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.name-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1a3c34;
+}
+
+.name-input {
+  height: 42px;
+  padding: 0 0.9rem;
+  border: 1px solid rgba(196, 154, 69, 0.5);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  outline: none;
+  background: #faf8f5;
+}
+
+.name-input:focus {
+  border-color: #1a3c34;
+}
+
+.btn-camera {
+  margin-top: 0.6rem;
+  padding: 0.55rem 1.2rem;
+  border-radius: 30px;
+  border: 1.5px solid #c49a45;
+  background: #ffffff;
+  color: #1a3c34;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-camera:hover {
+  background: rgba(196, 154, 69, 0.08);
+}
+
+.preview-item.is-uploading img {
+  opacity: 0.5;
+}
+
+.preview-item.is-error {
+  outline: 2px solid #d93025;
+}
+
+.preview-badge {
+  position: absolute;
+  inset: auto 4px 4px auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: #1a3c34;
+}
+
+.preview-item.is-error .preview-badge {
+  background: #d93025;
 }
 
 .status-message {

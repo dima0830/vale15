@@ -13,6 +13,13 @@ export default defineNuxtConfig({
     dbPassword: "",
     dbName: "vale15",
     adminPassword: "",
+    // Carpeta donde se guardan las fotos de invitados (volumen en Docker)
+    uploadsDir: "./uploads",
+  },
+
+  // La pantalla de fotos es 100% dinámica (luciérnagas aleatorias, polling): solo cliente.
+  routeRules: {
+    "/pantalla": { ssr: false },
   },
 
   css: ["~/assets/css/main.css"], // ← usa ~ en lugar de ./app

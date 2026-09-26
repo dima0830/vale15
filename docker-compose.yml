@@ -19,9 +19,17 @@ services:
       NUXT_DB_NAME: ${DB_NAME}
       # contraseña de acceso a /invitados
       NUXT_ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      # fotos subidas por los invitados (persisten en el volumen)
+      NUXT_UPLOADS_DIR: /app/uploads
+    volumes:
+      - uploads:/app/uploads
     networks:
       - nginx-proxy
       - cluster
+
+volumes:
+  uploads:
+    name: vale15_uploads
 
 networks:
   nginx-proxy:

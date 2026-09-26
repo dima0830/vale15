@@ -17,6 +17,9 @@ WORKDIR /app
 
 COPY --from=builder /app/.output ./.output
 
+# Las fotos de invitados viven en un volumen montado aquí
+RUN mkdir -p /app/uploads && chown node:node /app/uploads
+
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=3000

@@ -1,7 +1,7 @@
 <template>
   <section class="invitados-page">
     <div class="invitados-card">
-      <h1 class="page-title">Lista de invitados</h1>
+      <h1 class="page-title">{{ tab === "fotos" ? "Moderación de fotos" : "Lista de invitados" }}</h1>
 
       <!-- FORMULARIO DE ACCESO -->
       <form v-if="!authenticated" class="login-form" @submit.prevent="login">
@@ -20,8 +20,27 @@
         <p v-if="loginError" class="error-text">{{ loginError }}</p>
       </form>
 
+      <!-- PESTAÑAS -->
+      <div v-if="authenticated" class="tabs">
+        <button type="button" class="tab" :class="{ active: tab === 'rsvp' }" @click="tab = 'rsvp'">
+          Confirmaciones
+        </button>
+        <button type="button" class="tab" :class="{ active: tab === 'fotos' }" @click="tab = 'fotos'">
+          Fotos
+          <span v-if="pendingPhotos" class="tab-count">{{ pendingPhotos }}</span>
+        </button>
+        <button type="button" class="btn-secondary tab-logout" @click="logout">Salir</button>
+      </div>
+
+      <PhotoModeration
+        v-if="authenticated"
+        v-show="tab === 'fotos'"
+        @pending-count="pendingPhotos = $event"
+        @unauthorized="authenticated = false"
+      />
+
       <!-- LISTADO -->
-      <div v-else class="listing">
+      <div v-if="authenticated" v-show="tab === 'rsvp'" class="listing">
         <div class="listing-header">
           <p class="summary">
             {{ rows.length }} registro{{ rows.length === 1 ? "" : "s" }}
@@ -31,7 +50,6 @@
             <button class="btn-secondary" type="button" :disabled="loading" @click="fetchList">
               {{ loading ? "Actualizando..." : "Actualizar" }}
             </button>
-            <button class="btn-secondary" type="button" @click="logout">Salir</button>
           </div>
         </div>
 
@@ -99,6 +117,8 @@ const loading = ref(false);
 const loginError = ref("");
 const listError = ref("");
 const rows = ref<Rsvp[]>([]);
+const tab = ref<"rsvp" | "fotos">("rsvp");
+const pendingPhotos = ref(0);
 
 const totalAttending = computed(
   () => rows.value.filter((r) => r.attendance === "Acepto con mucho gusto").length
@@ -174,7 +194,7 @@ onMounted(fetchList);
 
 .invitados-card {
   width: 100%;
-  max-width: 720px;
+  max-width: 960px;
 }
 
 .page-title {
@@ -237,6 +257,54 @@ onMounted(fetchList);
 .error-text {
   color: #d9534f;
   font-size: 13px;
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #d4c59a;
+}
+
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  padding: 10px 14px;
+  font-family: "Cinzel", serif;
+  font-size: 14px;
+  color: #1c4b3c;
+  cursor: pointer;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab.active {
+  opacity: 1;
+  border-bottom-color: #c49a45;
+  font-weight: 700;
+}
+
+.tab-count {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: #c49a45;
+  color: #fff;
+  font-family: sans-serif;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tab-logout {
+  margin-left: auto;
+  margin-bottom: 6px;
 }
 
 .listing-header {
